@@ -47,6 +47,25 @@
       color: #979797
     }
 
+  .bottomBordered{
+      border-bottom: 1px solid black;
+  }
+
+  .bottomBordered:last-child{
+      border-bottom:none;
+  }
+
+  .eventTitle{
+      font-size: large;
+      font-weight: bold;
+  }
+
+  .eventDate{
+      font-size: medium;
+      padding-top:0.5rem !important;
+      padding-bottom: 0.5rem !important;
+  }
+
 
   </style>
 
@@ -60,15 +79,13 @@
   <div class="card">
     <div class="card-header">
       <h4 class="mb-0">Event List</h4>
+        <div style="float: right">
+            <input type="text" class="form-control" id="search" placeholder="Search...">
+        </div>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
         <table id="event_table" class="table">
-          <thead class="thead-dark">
-          <tr>
-            <th>Event Name</th>
-          </tr>
-          </thead>
           <tbody>
           </tbody>
         </table>
@@ -83,7 +100,41 @@
   <script type="text/javascript">
     $(document).ready(function () {
       let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
-      {#$.get#}
+      $.get( eventUrl, { 'page_size':'0'} )
+          .done(function( data ) {
+              $.each(data.results,function(){
+                  $('#event_table').append("<tr class='eventRow bottomBordered'></tr>");
+                  $('.eventRow:last').append("<td class='eventCell'>");
+                  $('.eventCell:last').append("<tr><td class='eventTitle'>"+this["name"]+"</td></tr>");
+                  $('.eventCell:last').append("<tr><td class='eventDate'>"+this["start_date"]+'-'+this["end_date"]+"</td></tr>");
+                  $('.eventCell:last').append("<tr><td class='eventLocation'>"+this["location"]+"</td></tr>");
+              })
+          });
+      $("#search").on("keyup paste", function() {
+        var value = $(this).val().toUpperCase();
+            var $rows = $(".eventRow");
+
+        if(value === ''){
+            $rows.show();
+            return false;
+        }
+console.log($rows)
+        $rows.each(function(index) {
+                $row = $(this);
+
+                var column1 = $row.find(".eventTitle").html().toUpperCase();
+                var column2 = $row.find(".eventDate").html().toUpperCase();
+                var column3 = $row.find(".eventLocation").html().toUpperCase();
+
+                if ((column1.indexOf(value) > -1) || (column2.indexOf(value) > -1) || (column3.indexOf(value) > -1)) {
+                    $row.show();
+                }
+                else {
+                    $row.hide();
+                }
+        });
+    })
+      /*
       $('#event_table').DataTable({
         ajax: {
           url: eventUrl,
@@ -104,6 +155,7 @@
           }
         }]
       });
+      */
       /*
       $.get(eventUrl, function (data, status) {
           console.log(data);
