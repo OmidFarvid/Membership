@@ -83,6 +83,7 @@
   <script type="text/javascript">
     $(document).ready(function () {
       let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
+      {#$.get#}
       $('#event_table').DataTable({
         ajax: {
           url: eventUrl,
