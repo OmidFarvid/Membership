@@ -139,7 +139,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            let eventCount=0;
             dateTimePickerWidget('txtFromDate', {format: 'YYYY-MM-DD'});
             let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
             $.get(eventUrl, {'page_size': '0'})
@@ -149,7 +148,7 @@
 
             let showEvents = function(events)
             {
-                eventCount = events.length;
+                let eventCount = events.length;
                     window.tp = new Pagination('#tablePaging', {itemsCount: eventCount,currentPage: 1,pageSize:1 });
                     $.each(events, function () {
                         this["start_date"] = moment(this["start_date"]).format("dddd, MMMM Do YYYY")
