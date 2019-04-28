@@ -16,6 +16,9 @@
           <li class="nav-item {% active_if 'membership:event-list' %}">
             <a class="nav-link" href="{% url 'membership:event-list' %}"><i class="fas fa-th-list"></i> Events</a>
           </li>
+        <li class="nav-item {% active_if 'membership:calendar' %}">
+            <a class="nav-link" href="{% url 'membership:calendar' %}"><i class="fas fa-calendar"></i> Calendar</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="javascript:"><i class="fas fa-info-circle"></i> About</a>
           </li>
