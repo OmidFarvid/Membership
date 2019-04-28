@@ -9,59 +9,56 @@
   <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
   <link href="{% static 'dj/css/bootstrap4-toggle.css' %}" rel="stylesheet">
   <style>
-    <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
-    <link href="{% static 'dj/css/bootstrap4-toggle.css' %}" rel="stylesheet">
 
-    <style>
-        .dataTables_wrapper table thead {
-            display: none;
-        }
+    .dataTables_wrapper table thead {
+      display: none;
+    }
 
-        .table td {
-            border-top: 0px !important;
-        }
+    .table td {
+      border-top: 0px !important;
+    }
 
-        tr:not(:last-child) > td > div {
-            padding-bottom: 19px;
-            border-bottom: 1px solid #979797;
-        }
+    tr:not(:last-child) > td > div {
+      padding-bottom: 19px;
+      border-bottom: 1px solid #979797;
+    }
 
-        .event-listing:hover {
-            color: #D60B30
-        }
+    .event-listing:hover {
+      color: #D60B30
+    }
 
-        .event-listing:hover span {
-            color: #D60B30;
-            transition-duration: .2s;
-            transition-timing-function: ease-in
-        }
+    .event-listing:hover span {
+      color: #D60B30;
+      transition-duration: .2s;
+      transition-timing-function: ease-in
+    }
 
-        .event-listing span {
-            display: block;
-        }
+    .event-listing span {
+      display: block;
+    }
 
-        .event-listing .event-heading {
-            font-size: 18px;
-            font-weight: 700;
-            color: #031E41
-        }
+    .event-listing .event-heading {
+      font-size: 18px;
+      font-weight: 700;
+      color: #031E41
+    }
 
-        .event-listing .event-date,
-        .event-listing .event-info,
-        .event-listing .event-location {
-            font-size: 14px;
-            color: #979797
-        }
+    .event-listing .event-date,
+    .event-listing .event-info,
+    .event-listing .event-location {
+      font-size: 14px;
+      color: #979797
+    }
 
-        .bottomBordered {
-            border-bottom: 1px solid black;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
+    .bottomBordered {
+      border-bottom: 1px solid black;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
 
-        .bottomBordered:last-child {
-            border-bottom: none;
-        }
+    .bottomBordered:last-child {
+      border-bottom: none;
+    }
 
 
     .event-title {
@@ -75,12 +72,16 @@
       padding-top: 0.5rem !important;
       padding-bottom: 0.5rem !important;
     }
+
+  .pagination{
+        display: inline-flex;
+  }
   </style>
 
 {% endblock %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item active" aria-current="page">Events</li>
+  <li class="breadcrumb-item active" aria-current="page">Events</li>
 {% endblock %}
 
 {% block content %}
@@ -135,195 +136,142 @@
 
         <div class="row mt-3">
           <div class="col-md-6" id="cntEvents">
-            <input type="text" class="form-control" id="search_input" placeholder="Search..."/>
+            <input type="text" class="form-control" id="txtSearchContent" placeholder="Search..."/>
             <div class="row" id="event_table"></div>
           </div>
           <div class="col-md-6" id="imgMap">
-            <img id="imgMap" src="{% static '/dj/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
+            <img src="{% static '/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
           </div>
         </div>
-        <div class="paging-container" id="table_paging"></div>
+        <div class="paging-container" id="tablePaging"></div>
       </div>
     </div>
   </div>
 {% endblock content %}
 {% block extra_js %}
-    <script src="{% static 'dj/js/datatables.js' %}"></script>
-    <script src="{% static 'dj/js/moment.js' %}"></script>
-    <script src="{% static 'dj/js/utils.js' %}"></script>
-    <script src="{% static 'dj/js/pagination.js' %}"></script>
-    <script src="{% static 'dj/js/bootstrap4-toggle.min.js' %}"></script>
-    <script src="{% static 'dj/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+  <script src="{% static 'dj/js/datatables.js' %}"></script>
+  <script src="{% static 'dj/js/moment.js' %}"></script>
+  <script src="{% static 'dj/js/utils.js' %}"></script>
+  <script src="{% static 'dj/js/pagination.js' %}"></script>
+  <script src="{% static 'dj/js/bootstrap4-toggle.min.js' %}"></script>
+  <script src="{% static 'dj/js/tempusdominus-bootstrap-4.min.js' %}"></script>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            dateTimePickerWidget('txtFromDate', {format: 'YYYY-MM-DD'});
-            let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
-            $.get(eventUrl, {'page_size': '0'})
-                .done(function (data) {
-                    showEvents(data.results);
-                });
-
-            let showEvents = function(events)
-            {
-                let eventCount = events.length;
-                    window.tp = new Pagination('#tablePaging', {itemsCount: eventCount,currentPage: 1,pageSize:1 });
-                    $.each(events, function () {
-                        this["start_date"] = moment(this["start_date"]).format("dddd, MMMM Do YYYY")
-                        this["end_date"] = moment(this["end_date"]).format("dddd, MMMM Do YYYY")
-                        $('#event_table').append("<div class='col-md-12 eventCell event-listing eventRow bottomBordered mt-3'>");
-                        $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventTitle'>"
-                            + this["name"] + "</div></div>");
-                        $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventDate'><span id='fromDate'>"
-                            + this["start_date"] + '</span>&nbsp-&nbsp<span id=\'toDate\'>' + this["end_date"] + "</span></div></div>");
-                        $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventLocation'>"
-                            + this["location"] + "</div></div>");
-                        $('.eventRow:last').append("</div>");
-                    })
-            }
-            $("#txtSearchContent").on("keyup paste", function () {
-                var value = $(this).val().toUpperCase();
-                var $rows = $(".eventRow");
-
-                if (value === '') {
-                    $rows.show();
-                    return false;
-                }
-                $rows.each(function (index) {
-                    $row = $(this);
-
-                    var column1 = $row.find(".eventTitle").html().toUpperCase();
-                    //var column2 = $row.find(".eventDate").html().toUpperCase();
-                    //var column3 = $row.find(".eventLocation").html().toUpperCase();
-
-                    if ((column1.indexOf(value) > -1)) {
-                        $row.show();
-                    } else {
-                        $row.hide();
-                    }
-                });
-            })
-
-            $("#btnSearchByDate").on("click", function () {
-                var value = $(this).val().toUpperCase();
-                var $rows = $(".eventRow");
-
-                if (value === '') {
-                    $rows.show();
-                    return false;
-                }
-                $rows.each(function (index) {
-                    $row = $(this);
-
-                    var fromDate = $row.find("#fromDate").html().toUpperCase();
-                    var toDate = $row.find("#toDate").html().toUpperCase();
-
-                    if ((fromDate <= value & toDate >= value)) {
-                        $row.show();
-                    } else {
-                        $row.hide();
-                    }
-                });
-
-            })
-
-            $('#chkToggleMap').change(function () {
-                let mapState = ($(this).prop('checked'))
-                let eventsContainer = $('#cntEvents');
-                let eventRows = $('.eventRow');
-                if (mapState == true) {
-                    eventsContainer.removeClass('col-md-12');
-                    eventsContainer.addClass('col-md-6');
-                    eventRows.removeClass('col-md-6');
-                    eventRows.addClass('col-md-12');
-
-                    $('#imgMap').slideDown();
-                } else {
-                    $('#imgMap').slideUp(function () {
-                            eventsContainer.removeClass('col-md-6');
-                            eventsContainer.addClass('col-md-12');
-                            eventRows.removeClass('col-md-12');
-                            eventRows.addClass('col-md-6');
-                        }
-                    );
-                }
-            })
-            /*
-            $('#event_table').DataTable({
-              ajax: {
-                url: eventUrl,
-                dataSrc: "results"
-              },
-              columnDefs: [{
-                targets: 0,
-                data: null, // Use the full data source object for the renderer's source
-                render: function (data, type, row, meta) {
-                  return `<div class="event-listing">
-                              <span class="event-heading">${data.name}</span>
-                              <span class="event-date">
-                                  ${moment(data.start_date).format("dddd, MMMM Do YYYY")} -
-                                  ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
-                              </span>
-                          </div>`
   <script type="text/javascript">
-      function showEvents(events) {
-          const eventCount = events.length;
-          window.tp = new Pagination('#table_paging', {itemsCount: eventCount, currentPage: 1, pageSize: 1});
-          $.each(events, function (index, event) {
-              event.start_date = moment(event.start_date).format("dddd, MMMM Do YYYY");
-              event.end_date = moment(event.end_date).format("dddd, MMMM Do YYYY");
-              $('#event_table').append("<div class='col-md-12 event-cell event-listing bottom_bordered mt-3'>");
-              $('.event-cell:last').append("<div class='row'><div class='col-md-12 event-title'>"
-                  + event.name + "</div></div>");
-              $('.event-cell:last').append("<div class='row'><div class='col-md-12 event_date'><span id='from_date'>"
-                  + event.start_date + '</span>&nbsp-&nbsp<span id=\'to_date\'>' + event.end_date + "</span></div></div>");
-              $('.event-cell:last').append("<div class='row'><div class='col-md-12 event_location'>"
-                  + event.location + "</div></div>");
-              $('.event-cell:last').append("</div>");
-          })
-      }
-
-      function getEvents(params) {
-          let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
-          return $.get(eventUrl, params);
-      }
-
       $(document).ready(function () {
-          dateTimePickerWidget('from_date', {format: 'YYYY-MM-DD'});
-          dateTimePickerWidget('to_date', {format: 'YYYY-MM-DD'});
-
-          getEvents({'page_size': '0'})
+          dateTimePickerWidget('txtFromDate', {format: 'YYYY-MM-DD'});
+          let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
+          let events = [];
+          $.get(eventUrl, {'page_size': '0'})
               .done(function (data) {
-                  showEvents(data.results);
+                  events = data.results;
+                  initPagination(events.length);
+                  showEvents(events);
               });
 
+          let showEvents = function (events, page_size = 1, page_index = 1) {
+              let start = page_size * (page_index - 1);
+              let end = start + page_size;
+              $('#event_table').empty();
+              $(events).each(function (index) {
+                  if (index >= start && index < end) {
+                      let start_date = moment(this["start_date"]).format("dddd, MMMM Do YYYY")
+                      let end_date = moment(this["end_date"]).format("dddd, MMMM Do YYYY")
+                      $('#event_table').append("<div class='col-md-12 eventCell event-listing eventRow bottomBordered mt-3'>");
+                      $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventTitle'>"
+                          + this["name"] + "</div></div>");
+                      $('.eventCell:last').append("<div class='row'><div class='col-md-12 event-date'><span id='fromDate'>"
+                          + start_date + '</span>&nbsp-&nbsp<span id=\'toDate\'>'
+                          + end_date + "</span></div></div>");
+                      $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventLocation'>"
+                          + this["location"] + "</div></div>");
+                      $('.eventRow:last').append("</div>");
+                  }
+              })
+          }
+          initPagination = function (itemCount) {
+              new Pagination('#tablePaging', {
+                  itemsCount: itemCount,
+                  currentPage: 1,
+                  pageRange: [1,10, 20, 30, -1],
+                  pageSize: 1,
+                  onPageChange: function (paging) {
+                    showEvents(events,paging.pageSize,paging.currentPage);
+                  },
+                  onPageSizeChange: function (paging) {
+                      paging.currentPage=1;
+                      showEvents(events,paging.pageSize,paging.currentPage);
+                  }
+              });
+          }
+          $("#txtSearchContent").on("keyup paste", function () {
+              var value = $(this).val().toUpperCase();
+              var $rows = $(".eventRow");
 
-          // On Search event by name
-          let previousTimeout = undefined;
-          $("#search_input").on("keyup paste", function () {
-              // Debounce search request
-              if (previousTimeout) {
-                  clearTimeout(previousTimeout);
+              if (value === '') {
+                  $rows.show();
+                  return false;
               }
-              previousTimeout = setTimeout(function () {
-                  const searchValue = $("#search_input").val();
-                  getEvents({'name': searchValue})
-                      .done(function (data) {
-                          showEvents(data);
-                      })
-              }, 1000);
-          });
+              $rows.each(function (index) {
+                  $row = $(this);
 
-          // On Search event by from/to date
-          $("#search_date_btn").on("click", function () {
-              const fromDate = $("#from_date").val();
-              const toDate = $("#to_date").val();
-              getEvents({'start_date_min': fromDate, 'end_date_max': toDate})
-                  .done(function (data) {
-                      showEvents(data);
-                  });
+                  var column1 = $row.find(".eventTitle").html().toUpperCase();
+                  //var column2 = $row.find(".eventDate").html().toUpperCase();
+                  //var column3 = $row.find(".eventLocation").html().toUpperCase();
 
-          });
-      })
+                  if ((column1.indexOf(value) > -1)) {
+                      $row.show();
+                  } else {
+                      $row.hide();
+                  }
+              });
+          })
+
+          $("#btnSearchByDate").on("click", function () {
+              var value = $(this).val().toUpperCase();
+              var $rows = $(".eventRow");
+
+              if (value === '') {
+                  $rows.show();
+                  return false;
+              }
+              $rows.each(function (index) {
+                  $row = $(this);
+
+                  var fromDate = $row.find("#fromDate").html().toUpperCase();
+                  var toDate = $row.find("#toDate").html().toUpperCase();
+
+                  if ((fromDate <= value & toDate >= value)) {
+                      $row.show();
+                  } else {
+                      $row.hide();
+                  }
+              });
+
+          })
+
+          $('#chkToggleMap').change(function () {
+              let mapState = ($(this).prop('checked'))
+              let eventsContainer = $('#cntEvents');
+              let eventRows = $('.eventRow');
+              if (mapState == true) {
+                  eventsContainer.removeClass('col-md-12');
+                  eventsContainer.addClass('col-md-6');
+                  eventRows.removeClass('col-md-6');
+                  eventRows.addClass('col-md-12');
+
+                  $('#imgMap').slideDown();
+              } else {
+                  $('#imgMap').slideUp(function () {
+                          eventsContainer.removeClass('col-md-6');
+                          eventsContainer.addClass('col-md-12');
+                          eventRows.removeClass('col-md-12');
+                          eventRows.addClass('col-md-6');
+                      }
+                  );
+              }
+          })
+      });
+
   </script>
+
 {% endblock extra_js %}
