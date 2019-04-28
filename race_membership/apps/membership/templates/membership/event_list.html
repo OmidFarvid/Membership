@@ -6,231 +6,272 @@
 
 
 {% block extra_css %}
-  <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
-  <style>
-    .dataTables_wrapper table thead {
-      display: none;
-    }
+    <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
+    <link href="{% static 'dj/css/bootstrap4-toggle.css' %}" rel="stylesheet">
 
-    .table td{
-      border-top: 0px !important;
-    }
+    <style>
+        .dataTables_wrapper table thead {
+            display: none;
+        }
 
-    tr:not(:last-child) > td > div {
-      padding-bottom: 19px;
-      border-bottom: 1px solid #979797;
-    }
+        .table td {
+            border-top: 0px !important;
+        }
 
-    .event-listing:hover {
-      color: #D60B30
-    }
+        tr:not(:last-child) > td > div {
+            padding-bottom: 19px;
+            border-bottom: 1px solid #979797;
+        }
 
-    .event-listing:hover span {
-      color: #D60B30;
-      transition-duration: .2s;
-      transition-timing-function: ease-in
-    }
+        .event-listing:hover {
+            color: #D60B30
+        }
 
-    .event-listing span {
-      display: block;
-    }
+        .event-listing:hover span {
+            color: #D60B30;
+            transition-duration: .2s;
+            transition-timing-function: ease-in
+        }
 
-    .event-listing .event-heading {
-      font-size: 18px;
-      font-weight: 700;
-      color: #031E41
-    }
+        .event-listing span {
+            display: block;
+        }
 
-    .event-listing .event-date,
-    .event-listing .event-info,
-    .event-listing .event-location {
-      font-size: 14px;
-      color: #979797
-    }
+        .event-listing .event-heading {
+            font-size: 18px;
+            font-weight: 700;
+            color: #031E41
+        }
 
-  .bottomBordered{
-      border-bottom: 1px solid black;
-  }
+        .event-listing .event-date,
+        .event-listing .event-info,
+        .event-listing .event-location {
+            font-size: 14px;
+            color: #979797
+        }
 
-  .bottomBordered:last-child{
-      border-bottom:none;
-  }
+        .bottomBordered {
+            border-bottom: 1px solid black;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
 
-  .eventTitle{
-      font-size: large;
-      font-weight: bold;
-  }
+        .bottomBordered:last-child {
+            border-bottom: none;
+        }
 
-  .eventDate{
-      font-size: medium;
-      padding-top:0.5rem !important;
-      padding-bottom: 0.5rem !important;
-  }
+        .eventTitle {
+            font-size: large;
+            font-weight: bold;
+        }
+
+        .eventDate {
+            display: inline-flex;
+            font-size: medium;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
 
 
-  </style>
+    </style>
 
 {% endblock %}
 
 {% block breadcrumb_items %}
-  <li class="breadcrumb-item active" aria-current="page">Events</li>
+    <li class="breadcrumb-item active" aria-current="page">Events</li>
 {% endblock %}
 
 {% block content %}
-  <div class="card">
-    <div class="card-header">
-      <h4 class="mb-0">Event List</h4>
-        <div class="row">
-            <div class="col-md-3 text-right">
-                From Date :
-            </div>
-            <div class="col-md-3 text-left">
-                <input type="text" class="form-control fa fa-calendar" id="txtFromDate" placeholder="">
-            </div>
-            <div class="col-md-3 text-right">
-                To Date :
-            </div>
-            <div class="col-md-3 text-left">
-                <input type="text" class="form-control" id="txtToDate" placeholder=""/>
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-12 text-center">
-                <input type="button" class="btn btn-large btn-info" value="Search" id="btnSearchByDate"/>
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-md-12">
-            <input type="text" class="form-control" id="txtSearch" placeholder="Search..."/>
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Event List</h4>
+            <div class="row mt-3">
+                <div class="col-md-3 text-right">
+                    From Date :
                 </div>
-        </div>
-    </div>
-    <div class="card-body p-0">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6" id="event_table"></div>
-                <div class="col-md-6" id="imgMap">
-                    <img src="{% static '/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
+                <div class="col-md-3 text-left">
+                    <input type="text" class="form-control fa fa-calendar" id="txtFromDate" placeholder="">
+                </div>
+                <div class="col-md-3 text-right">
+                    To Date :
+                </div>
+                <div class="col-md-3 text-left">
+                    <input type="text" class="form-control" id="txtToDate" placeholder=""/>
                 </div>
             </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <input type="button" class="btn btn-large btn-info" value="Search" id="btnSearchByDate"/>
+                </div>
+            </div>
+            <br>
 
         </div>
+        <div class="card-body p-0">
+            <div class="container">
+                <div class="row mt-3">
+                    <div class="col-md-12 text-right">
+                        <input id="chkToggleMap" type="checkbox" checked data-toggle="toggle">
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6" id="cntEvents">
+                        <input type="text" class="form-control" id="txtSearchContent" placeholder="Search..."/>
+                        <div class="row" id="event_table"></div>
+                    </div>
+                    <div class="col-md-6" id="imgMap">
+                        <img id="imgMap" src="{% static '/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
+                    </div>
+                </div>
+                <div class="paging-container" id="tablePaging"></div>
+            </div>
+        </div>
     </div>
-  </div>
 {% endblock content %}
 {% block extra_js %}
     <script src="{% static 'dj/js/datatables.js' %}"></script>
     <script src="{% static 'dj/js/moment.js' %}"></script>
     <script src="{% static 'dj/js/utils.js' %}"></script>
+    <script src="{% static 'dj/js/pagination.js' %}"></script>
     <script src="{% static 'dj/js/bootstrap4-toggle.min.js' %}"></script>
     <script src="{% static 'dj/js/tempusdominus-bootstrap-4.min.js' %}"></script>
 
-  <script type="text/javascript">
-    $(document).ready(function () {
-        dateTimePickerWidget('txtFromDate', {format: 'YYYY-MM-DD'});
-      let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
-      $.get( eventUrl, { 'page_size':'0'} )
-          .done(function( data ) {
-              $.each(data.results,function(){
-                  $('#event_table').append("<div class='row eventRow bottomBordered'></div>");
-                  $('.eventRow:last').append("<div class='col-md-12 eventCell'>");
-                  $('.eventCell:last').append("<div class='row'><div class='col-md-6 eventTitle'>"+this["name"]+"</div></div>");
-                  $('.eventCell:last').append("<div class='row'><div class='col-md-6 eventDate'><span id='fromDate'>"
-                      +this["start_date"]+'</span> - <span id=\'toDate\'>'+this["end_date"]+"</span></div></div>");
-                  $('.eventCell:last').append("<div class='row'><div class='col-md-6 eventLocation'>"+this["location"]+"</div></div>");
-                  $('.eventRow:last').append("</div>");
-              })
-          });
-      $("#txtSearch").on("keyup paste", function() {
-        var value = $(this).val().toUpperCase();
-            var $rows = $(".eventRow");
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let eventCount=0;
+            dateTimePickerWidget('txtFromDate', {format: 'YYYY-MM-DD'});
+            let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
+            $.get(eventUrl, {'page_size': '0'})
+                .done(function (data) {
+                    showEvents(data.results);
+                });
 
-        if(value === ''){
-            $rows.show();
-            return false;
-        }
-        $rows.each(function(index) {
-                $row = $(this);
+            showEvents = function(events)
+            {
+                eventCount = events.length;
+                    window.tp = new Pagination('#tablePaging', {itemsCount: eventCount,currentPage: 1,pageSize:1 });
+                    $.each(events, function () {
+                        this["start_date"] = moment(this["start_date"]).format("dddd, MMMM Do YYYY")
+                        this["end_date"] = moment(this["end_date"]).format("dddd, MMMM Do YYYY")
+                        $('#event_table').append("<div class='col-md-12 eventCell event-listing eventRow bottomBordered mt-3'>");
+                        $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventTitle'>"
+                            + this["name"] + "</div></div>");
+                        $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventDate'><span id='fromDate'>"
+                            + this["start_date"] + '</span>&nbsp-&nbsp<span id=\'toDate\'>' + this["end_date"] + "</span></div></div>");
+                        $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventLocation'>"
+                            + this["location"] + "</div></div>");
+                        $('.eventRow:last').append("</div>");
+                    })
+            }
+            $("#txtSearchContent").on("keyup paste", function () {
+                var value = $(this).val().toUpperCase();
+                var $rows = $(".eventRow");
 
-                var column1 = $row.find(".eventTitle").html().toUpperCase();
-                //var column2 = $row.find(".eventDate").html().toUpperCase();
-                //var column3 = $row.find(".eventLocation").html().toUpperCase();
-
-                if ((column1.indexOf(value) > -1)) {
-                    $row.show();
+                if (value === '') {
+                    $rows.show();
+                    return false;
                 }
-                else {
-                    $row.hide();
-                }
-        });
+                $rows.each(function (index) {
+                    $row = $(this);
+
+                    var column1 = $row.find(".eventTitle").html().toUpperCase();
+                    //var column2 = $row.find(".eventDate").html().toUpperCase();
+                    //var column3 = $row.find(".eventLocation").html().toUpperCase();
+
+                    if ((column1.indexOf(value) > -1)) {
+                        $row.show();
+                    } else {
+                        $row.hide();
+                    }
+                });
             })
 
-        $("#btnSearchByDate").on("click", function() {
-        var value = $(this).val().toUpperCase();
-            var $rows = $(".eventRow");
+            $("#btnSearchByDate").on("click", function () {
+                var value = $(this).val().toUpperCase();
+                var $rows = $(".eventRow");
 
-        if(value === ''){
-            $rows.show();
-            return false;
-        }
-        $rows.each(function(index) {
-                $row = $(this);
-
-                var fromDate = $row.find("#fromDate").html().toUpperCase();
-                var toDate = $row.find("#toDate").html().toUpperCase();
-
-                if ((fromDate<=value & toDate>=value)) {
-                    $row.show();
+                if (value === '') {
+                    $rows.show();
+                    return false;
                 }
-                else {
-                    $row.hide();
+                $rows.each(function (index) {
+                    $row = $(this);
+
+                    var fromDate = $row.find("#fromDate").html().toUpperCase();
+                    var toDate = $row.find("#toDate").html().toUpperCase();
+
+                    if ((fromDate <= value & toDate >= value)) {
+                        $row.show();
+                    } else {
+                        $row.hide();
+                    }
+                });
+
+            })
+
+            $('#chkToggleMap').change(function () {
+                let mapState = ($(this).prop('checked'))
+                let eventsContainer = $('#cntEvents');
+                let eventRows = $('.eventRow');
+                if (mapState == true) {
+                    eventsContainer.removeClass('col-md-12');
+                    eventsContainer.addClass('col-md-6');
+                    eventRows.removeClass('col-md-6');
+                    eventRows.addClass('col-md-12');
+
+                    $('#imgMap').slideDown();
+                } else {
+                    $('#imgMap').slideUp(function () {
+                            eventsContainer.removeClass('col-md-6');
+                            eventsContainer.addClass('col-md-12');
+                            eventRows.removeClass('col-md-12');
+                            eventRows.addClass('col-md-6');
+                        }
+                    );
                 }
+            })
+            /*
+            $('#event_table').DataTable({
+              ajax: {
+                url: eventUrl,
+                dataSrc: "results"
+              },
+              columnDefs: [{
+                targets: 0,
+                data: null, // Use the full data source object for the renderer's source
+                render: function (data, type, row, meta) {
+                  return `<div class="event-listing">
+                              <span class="event-heading">${data.name}</span>
+                              <span class="event-date">
+                                  ${moment(data.start_date).format("dddd, MMMM Do YYYY")} -
+                                  ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
+                              </span>
+                          </div>`
+
+                }
+              }]
+            });
+            */
+            /*
+            $.get(eventUrl, function (data, status) {
+                console.log(data);
+                $.fn.dataTable.ext.errMode = 'none';
+                $('#event_table').DataTable({
+                    data: data.results,
+                    createdRow: function (row, data, dataIndex) {
+                        $(row).html(`
+                            <div class="event-listing">
+                                <span class="event-heading">${data.name}</span>
+                                <span class="event-date">
+                                    ${moment(data.start_date).format("dddd, MMMM Do YYYY")} -
+                                    ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
+                                </span>
+                            </div>`)
+                    }
+                });
+            })
+            */
         });
-
-    })
-      /*
-      $('#event_table').DataTable({
-        ajax: {
-          url: eventUrl,
-          dataSrc: "results"
-        },
-        columnDefs: [{
-          targets: 0,
-          data: null, // Use the full data source object for the renderer's source
-          render: function (data, type, row, meta) {
-            return `<div class="event-listing">
-                        <span class="event-heading">${data.name}</span>
-                        <span class="event-date">
-                            ${moment(data.start_date).format("dddd, MMMM Do YYYY")} -
-                            ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
-                        </span>
-                    </div>`
-
-          }
-        }]
-      });
-      */
-      /*
-      $.get(eventUrl, function (data, status) {
-          console.log(data);
-          $.fn.dataTable.ext.errMode = 'none';
-          $('#event_table').DataTable({
-              data: data.results,
-              createdRow: function (row, data, dataIndex) {
-                  $(row).html(`
-                      <div class="event-listing">
-                          <span class="event-heading">${data.name}</span>
-                          <span class="event-date">
-                              ${moment(data.start_date).format("dddd, MMMM Do YYYY")} -
-                              ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
-                          </span>
-                      </div>`)
-              }
-          });
-      })
-      */
-    });
-  </script>
+    </script>
 {% endblock extra_js %}
