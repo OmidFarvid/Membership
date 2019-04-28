@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load bootstrap4 %}
 {% load util_tags %}
+{% load static %}
 
 
 {% block extra_css %}
@@ -79,38 +80,70 @@
   <div class="card">
     <div class="card-header">
       <h4 class="mb-0">Event List</h4>
-        <div style="float: right">
-            <input type="text" class="form-control" id="search" placeholder="Search...">
+        <div class="row">
+            <div class="col-md-3 text-right">
+                From Date :
+            </div>
+            <div class="col-md-3 text-left">
+                <input type="text" class="form-control fa fa-calendar" id="txtFromDate" placeholder="">
+            </div>
+            <div class="col-md-3 text-right">
+                To Date :
+            </div>
+            <div class="col-md-3 text-left">
+                <input type="text" class="form-control" id="txtToDate" placeholder=""/>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-12 text-center">
+                <input type="button" class="btn btn-large btn-info" value="Search" id="btnSearchByDate"/>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+            <input type="text" class="form-control" id="txtSearch" placeholder="Search..."/>
+                </div>
         </div>
     </div>
     <div class="card-body p-0">
-      <div class="table-responsive">
-        <table id="event_table" class="table">
-          <tbody>
-          </tbody>
-        </table>
-      </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6" id="event_table"></div>
+                <div class="col-md-6" id="imgMap">
+                    <img src="{% static '/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
+                </div>
+            </div>
+
+        </div>
     </div>
   </div>
 {% endblock content %}
 {% block extra_js %}
-  <script src="{% static 'dj/js/datatables.js' %}"></script>
-  <script src="{% static 'dj/js/moment.js' %}"></script>
+    <script src="{% static 'dj/js/datatables.js' %}"></script>
+    <script src="{% static 'dj/js/moment.js' %}"></script>
+    <script src="{% static 'dj/js/utils.js' %}"></script>
+    <script src="{% static 'dj/js/bootstrap4-toggle.min.js' %}"></script>
+    <script src="{% static 'dj/js/tempusdominus-bootstrap-4.min.js' %}"></script>
 
   <script type="text/javascript">
     $(document).ready(function () {
+        dateTimePickerWidget('txtFromDate', {format: 'YYYY-MM-DD'});
       let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
       $.get( eventUrl, { 'page_size':'0'} )
           .done(function( data ) {
               $.each(data.results,function(){
-                  $('#event_table').append("<tr class='eventRow bottomBordered'></tr>");
-                  $('.eventRow:last').append("<td class='eventCell'>");
-                  $('.eventCell:last').append("<tr><td class='eventTitle'>"+this["name"]+"</td></tr>");
-                  $('.eventCell:last').append("<tr><td class='eventDate'>"+this["start_date"]+'-'+this["end_date"]+"</td></tr>");
-                  $('.eventCell:last').append("<tr><td class='eventLocation'>"+this["location"]+"</td></tr>");
+                  $('#event_table').append("<div class='row eventRow bottomBordered'></div>");
+                  $('.eventRow:last').append("<div class='col-md-12 eventCell'>");
+                  $('.eventCell:last').append("<div class='row'><div class='col-md-6 eventTitle'>"+this["name"]+"</div></div>");
+                  $('.eventCell:last').append("<div class='row'><div class='col-md-6 eventDate'><span id='fromDate'>"
+                      +this["start_date"]+'</span> - <span id=\'toDate\'>'+this["end_date"]+"</span></div></div>");
+                  $('.eventCell:last').append("<div class='row'><div class='col-md-6 eventLocation'>"+this["location"]+"</div></div>");
+                  $('.eventRow:last').append("</div>");
               })
           });
-      $("#search").on("keyup paste", function() {
+      $("#txtSearch").on("keyup paste", function() {
         var value = $(this).val().toUpperCase();
             var $rows = $(".eventRow");
 
@@ -118,21 +151,44 @@
             $rows.show();
             return false;
         }
-console.log($rows)
         $rows.each(function(index) {
                 $row = $(this);
 
                 var column1 = $row.find(".eventTitle").html().toUpperCase();
-                var column2 = $row.find(".eventDate").html().toUpperCase();
-                var column3 = $row.find(".eventLocation").html().toUpperCase();
+                //var column2 = $row.find(".eventDate").html().toUpperCase();
+                //var column3 = $row.find(".eventLocation").html().toUpperCase();
 
-                if ((column1.indexOf(value) > -1) || (column2.indexOf(value) > -1) || (column3.indexOf(value) > -1)) {
+                if ((column1.indexOf(value) > -1)) {
                     $row.show();
                 }
                 else {
                     $row.hide();
                 }
         });
+            })
+
+        $("#btnSearchByDate").on("click", function() {
+        var value = $(this).val().toUpperCase();
+            var $rows = $(".eventRow");
+
+        if(value === ''){
+            $rows.show();
+            return false;
+        }
+        $rows.each(function(index) {
+                $row = $(this);
+
+                var fromDate = $row.find("#fromDate").html().toUpperCase();
+                var toDate = $row.find("#toDate").html().toUpperCase();
+
+                if ((fromDate<=value & toDate>=value)) {
+                    $row.show();
+                }
+                else {
+                    $row.hide();
+                }
+        });
+
     })
       /*
       $('#event_table').DataTable({
