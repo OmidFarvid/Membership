@@ -6,6 +6,9 @@
 
 
 {% block extra_css %}
+  <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
+  <link href="{% static 'dj/css/bootstrap4-toggle.css' %}" rel="stylesheet">
+  <style>
     <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
     <link href="{% static 'dj/css/bootstrap4-toggle.css' %}" rel="stylesheet">
 
@@ -60,20 +63,19 @@
             border-bottom: none;
         }
 
-        .eventTitle {
-            font-size: large;
-            font-weight: bold;
-        }
 
-        .eventDate {
-            display: inline-flex;
-            font-size: medium;
-            padding-top: 0.5rem !important;
-            padding-bottom: 0.5rem !important;
-        }
+    .event-title {
+      font-size: large;
+      font-weight: bold;
+    }
 
-
-    </style>
+    .event-date {
+      display: inline-flex;
+      font-size: medium;
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+    }
+  </style>
 
 {% endblock %}
 
@@ -82,52 +84,68 @@
 {% endblock %}
 
 {% block content %}
-    <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0">Event List</h4>
-            <div class="row mt-3">
-                <div class="col-md-3 text-right">
-                    From Date :
-                </div>
-                <div class="col-md-3 text-left">
-                    <input type="text" class="form-control fa fa-calendar" id="txtFromDate" placeholder="">
-                </div>
-                <div class="col-md-3 text-right">
-                    To Date :
-                </div>
-                <div class="col-md-3 text-left">
-                    <input type="text" class="form-control" id="txtToDate" placeholder=""/>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12 text-center">
-                    <input type="button" class="btn btn-large btn-info" value="Search" id="btnSearchByDate"/>
-                </div>
-            </div>
-            <br>
-
+  <div class="card">
+    <div class="card-header">
+      <h4 class="mb-0">Event List</h4>
+      <div class="row mt-3">
+        <div class="col-md-3 text-right">
+          From Date :
         </div>
-        <div class="card-body p-0">
-            <div class="container">
-                <div class="row mt-3">
-                    <div class="col-md-12 text-right">
-                        <input id="chkToggleMap" type="checkbox" checked data-toggle="toggle">
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6" id="cntEvents">
-                        <input type="text" class="form-control" id="txtSearchContent" placeholder="Search..."/>
-                        <div class="row" id="event_table"></div>
-                    </div>
-                    <div class="col-md-6" id="imgMap">
-                        <img id="imgMap" src="{% static '/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
-                    </div>
-                </div>
-                <div class="paging-container" id="tablePaging"></div>
+        <div class="col-md-3 text-left">
+          <div class="input-group">
+            <input type="text"
+                   placeholder="From date"
+                   title="" required=""
+                   id="from_date"/>
+            <div class="input-group-append">
+              <span class="input-group-text"><span class="fa fa-calendar"></span></span>
             </div>
+          </div>
         </div>
+        <div class="col-md-3 text-right">
+          To Date :
+        </div>
+        <div class="col-md-3 text-left">
+          <div class="input-group">
+            <input type="text"
+                   placeholder="To date"
+                   title="" required=""
+                   id="to_date"/>
+            <div class="input-group-append">
+              <span class="input-group-text"><span class="fa fa-calendar"></span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-12 text-center">
+          <input type="button" class="btn btn-large btn-info" value="Search" id="search_date_btn"/>
+        </div>
+      </div>
+      <br>
+
     </div>
+    <div class="card-body p-0">
+      <div class="container">
+        <div class="row mt-3">
+          <div class="col-md-12 text-right">
+            <input id="chkToggleMap" type="checkbox" checked data-toggle="toggle">
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-6" id="cntEvents">
+            <input type="text" class="form-control" id="search_input" placeholder="Search..."/>
+            <div class="row" id="event_table"></div>
+          </div>
+          <div class="col-md-6" id="imgMap">
+            <img id="imgMap" src="{% static '/dj/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
+          </div>
+        </div>
+        <div class="paging-container" id="table_paging"></div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}
 {% block extra_js %}
     <script src="{% static 'dj/js/datatables.js' %}"></script>
@@ -247,30 +265,65 @@
                                   ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
                               </span>
                           </div>`
+  <script type="text/javascript">
+      function showEvents(events) {
+          const eventCount = events.length;
+          window.tp = new Pagination('#table_paging', {itemsCount: eventCount, currentPage: 1, pageSize: 1});
+          $.each(events, function (index, event) {
+              event.start_date = moment(event.start_date).format("dddd, MMMM Do YYYY");
+              event.end_date = moment(event.end_date).format("dddd, MMMM Do YYYY");
+              $('#event_table').append("<div class='col-md-12 event-cell event-listing bottom_bordered mt-3'>");
+              $('.event-cell:last').append("<div class='row'><div class='col-md-12 event-title'>"
+                  + event.name + "</div></div>");
+              $('.event-cell:last').append("<div class='row'><div class='col-md-12 event_date'><span id='from_date'>"
+                  + event.start_date + '</span>&nbsp-&nbsp<span id=\'to_date\'>' + event.end_date + "</span></div></div>");
+              $('.event-cell:last').append("<div class='row'><div class='col-md-12 event_location'>"
+                  + event.location + "</div></div>");
+              $('.event-cell:last').append("</div>");
+          })
+      }
 
-                }
-              }]
-            });
-            */
-            /*
-            $.get(eventUrl, function (data, status) {
-                console.log(data);
-                $.fn.dataTable.ext.errMode = 'none';
-                $('#event_table').DataTable({
-                    data: data.results,
-                    createdRow: function (row, data, dataIndex) {
-                        $(row).html(`
-                            <div class="event-listing">
-                                <span class="event-heading">${data.name}</span>
-                                <span class="event-date">
-                                    ${moment(data.start_date).format("dddd, MMMM Do YYYY")} -
-                                    ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
-                                </span>
-                            </div>`)
-                    }
-                });
-            })
-            */
-        });
-    </script>
+      function getEvents(params) {
+          let eventUrl = "{% url 'membership_rest_api:event-list' 'v1' %}";
+          return $.get(eventUrl, params);
+      }
+
+      $(document).ready(function () {
+          dateTimePickerWidget('from_date', {format: 'YYYY-MM-DD'});
+          dateTimePickerWidget('to_date', {format: 'YYYY-MM-DD'});
+
+          getEvents({'page_size': '0'})
+              .done(function (data) {
+                  showEvents(data.results);
+              });
+
+
+          // On Search event by name
+          let previousTimeout = undefined;
+          $("#search_input").on("keyup paste", function () {
+              // Debounce search request
+              if (previousTimeout) {
+                  clearTimeout(previousTimeout);
+              }
+              previousTimeout = setTimeout(function () {
+                  const searchValue = $("#search_input").val();
+                  getEvents({'name': searchValue})
+                      .done(function (data) {
+                          showEvents(data);
+                      })
+              }, 1000);
+          });
+
+          // On Search event by from/to date
+          $("#search_date_btn").on("click", function () {
+              const fromDate = $("#from_date").val();
+              const toDate = $("#to_date").val();
+              getEvents({'start_date_min': fromDate, 'end_date_max': toDate})
+                  .done(function (data) {
+                      showEvents(data);
+                  });
+
+          });
+      })
+  </script>
 {% endblock extra_js %}
