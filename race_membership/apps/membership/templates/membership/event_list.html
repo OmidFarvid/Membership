@@ -147,7 +147,7 @@
                     showEvents(data.results);
                 });
 
-            showEvents = function(events)
+            let showEvents = function(events)
             {
                 eventCount = events.length;
                     window.tp = new Pagination('#tablePaging', {itemsCount: eventCount,currentPage: 1,pageSize:1 });
