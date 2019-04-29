@@ -10,19 +10,6 @@
   <link href="{% static 'dj/css/bootstrap4-toggle.css' %}" rel="stylesheet">
   <style>
 
-    .dataTables_wrapper table thead {
-      display: none;
-    }
-
-    .table td {
-      border-top: 0px !important;
-    }
-
-    tr:not(:last-child) > td > div {
-      padding-bottom: 19px;
-      border-bottom: 1px solid #979797;
-    }
-
     .event-listing:hover {
       color: #D60B30
     }
@@ -50,13 +37,13 @@
       color: #979797
     }
 
-    .bottomBordered {
+    .bottom-bordered {
       border-bottom: 1px solid black;
       padding-bottom: 10px;
       margin-bottom: 10px;
     }
 
-    .bottomBordered:last-child {
+    .bottom-bordered:last-child {
       border-bottom: none;
     }
 
@@ -130,20 +117,20 @@
       <div class="container">
         <div class="row mt-3">
           <div class="col-md-12 text-right">
-            <input id="chkToggleMap" type="checkbox" checked data-toggle="toggle">
+            <input id="toggle_map" type="checkbox" checked data-toggle="toggle">
           </div>
         </div>
 
         <div class="row mt-3">
-          <div class="col-md-6" id="cntEvents">
+          <div class="col-md-6" id="events_container">
             <input type="text" class="form-control" id="search_input" placeholder="Search..."/>
             <div class="row" id="event_table"></div>
           </div>
-          <div class="col-md-6" id="imgMap">
-            <img src="{% static '/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
+          <div class="col-md-6" id="events_map">
+            <img id="events_map" src="{% static '/dj/images/World_map_-_low_resolution.svg' %}" class="img-fluid">
           </div>
         </div>
-        <div class="paging-container" id="tablePaging"></div>
+        <div class="paging-container" id="table_paging"></div>
       </div>
     </div>
   </div>
@@ -158,20 +145,26 @@
 
   <script type="text/javascript">
       function showEvents(events, page_size = 1, page_index = 1) {
+          // Fill event page
           let start = page_size * (page_index - 1);
           let end = start + page_size;
           $('#event_table').empty();
           $(events).each(function (index) {
               if (index >= start && index < end) {
-                  let start_date = moment(this["start_date"]).format("dddd, MMMM Do YYYY")
-                  let end_date = moment(this["end_date"]).format("dddd, MMMM Do YYYY")
-                  $('#event_table').append("<div class='col-md-12 eventCell event-listing eventRow bottomBordered mt-3'>");
-                  $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventTitle'>"
+                  let start_date = moment(this["start_date"]).format("dddd, MMMM Do YYYY");
+                  let end_date = moment(this["end_date"]).format("dddd, MMMM Do YYYY");
+                  // Add event div
+                  $('#event_table').append("<div class='col-md-12 eventCell event-listing eventRow bottom-bordered mt-3'>");
+                  let eventDiv = $('.eventCell:last');
+                  // Add event name
+                  eventDiv.append("<div class='row'><div class='col-md-12 eventTitle'>"
                       + this["name"] + "</div></div>");
-                  $('.eventCell:last').append("<div class='row'><div class='col-md-12 event-date'><span id='fromDate'>"
+                  // Add event start/end date
+                  eventDiv.append("<div class='row'><div class='col-md-12 event-date'><span id='fromDate'>"
                       + start_date + '</span>&nbsp-&nbsp<span id=\'toDate\'>'
                       + end_date + "</span></div></div>");
-                  $('.eventCell:last').append("<div class='row'><div class='col-md-12 eventLocation'>"
+                  // Add event location
+                  eventDiv.append("<div class='row'><div class='col-md-12 eventLocation'>"
                       + this["location"] + "</div></div>");
                   $('.eventRow:last').append("</div>");
               }
@@ -183,6 +176,22 @@
           return $.get(eventUrl, params);
       }
 
+      function initPagination(events) {
+          new Pagination('#table_paging', {
+              itemsCount: events.length,
+              currentPage: 1,
+              pageRange: [1, 10, 20, 30, -1],
+              pageSize: 1,
+              onPageChange: function (paging) {
+                  showEvents(events, paging.pageSize, paging.currentPage);
+              },
+              onPageSizeChange: function (paging) {
+                  paging.currentPage = 1;
+                  showEvents(events, paging.pageSize, paging.currentPage);
+              }
+          });
+      }
+
       $(document).ready(function () {
           dateTimePickerWidget('from_date', {format: 'YYYY-MM-DD'});
           dateTimePickerWidget('to_date', {format: 'YYYY-MM-DD'});
@@ -190,41 +199,23 @@
           let events = [];
           getEvents({'page_size': '0'})
               .done(function (data) {
-                  events = data.results;
-                  initPagination(events.length);
-                  showEvents(events);
+                  initPagination(data.results);
               });
 
-          initPagination = function (itemCount) {
-              new Pagination('#tablePaging', {
-                  itemsCount: itemCount,
-                  currentPage: 1,
-                  pageRange: [1, 10, 20, 30, -1],
-                  pageSize: 1,
-                  onPageChange: function (paging) {
-                      showEvents(events, paging.pageSize, paging.currentPage);
-                  },
-                  onPageSizeChange: function (paging) {
-                      paging.currentPage = 1;
-                      showEvents(events, paging.pageSize, paging.currentPage);
-                  }
-              });
-          }
 
 
-          $('#chkToggleMap').change(function () {
+          $('#toggle_map').change(function () {
               let mapState = ($(this).prop('checked'))
-              let eventsContainer = $('#cntEvents');
+              let eventsContainer = $('#events_container');
               let eventRows = $('.eventRow');
-              if (mapState == true) {
+              if (mapState === true) {
                   eventsContainer.removeClass('col-md-12');
                   eventsContainer.addClass('col-md-6');
                   eventRows.removeClass('col-md-6');
                   eventRows.addClass('col-md-12');
-
-                  $('#imgMap').slideDown();
+                  $('#events_map').slideDown();
               } else {
-                  $('#imgMap').slideUp(function () {
+                  $('#events_map').slideUp(function () {
                           eventsContainer.removeClass('col-md-6');
                           eventsContainer.addClass('col-md-12');
                           eventRows.removeClass('col-md-12');
@@ -232,7 +223,7 @@
                       }
                   );
               }
-          })
+          });
 
           // On Search event by name
           let previousTimeout = undefined;
@@ -245,9 +236,7 @@
                   const searchValue = $("#search_input").val();
                   getEvents({'name': searchValue})
                       .done(function (data) {
-                          events = data.results;
-                          initPagination(events.length);
-                          showEvents(data.results);
+                          initPagination(data.results);
                       })
               }, 1000);
           });
@@ -258,9 +247,7 @@
               const toDate = $("#to_date").val();
               getEvents({'start_date_min': fromDate, 'end_date_max': toDate})
                   .done(function (data) {
-                      events = data.results;
-                      initPagination(events.length);
-                      showEvents(data.results);
+                      initPagination(data.results);
                   });
 
           });
