@@ -34,15 +34,14 @@ class HistoricalViewMixin(object):
             model = Version
             fields = ['id', 'min_date', 'max_date']
 
-    @action(detail=False, filter_class=HistoryFilter, url_path='(?P<pk>[0-9]+)/history',
+    @action(detail=False, filterset_class=HistoryFilter, url_path='(?P<pk>[0-9]+)/history',
             ordering_fields=['id'], extra_ordering_fields={'date': 'revision__date_created'}, search_fields=[],
             filter_backends=(SearchFilter, ExtendedOrderingFilterBackend),
             ordering='id')
     def history(self, request, *args, **kwargs):
         instance = get_object_or_404(self.get_queryset(), pk=self.kwargs['pk'])
         self.check_object_permissions(request, instance)
-        qs = self.filter_class(data=request.GET, queryset=Version.objects.get_for_object(instance)).qs
-        filtered_qs = self.filter_queryset(qs)
+        filtered_qs = self.filterset_class(data=request.GET, queryset=Version.objects.get_for_object(instance)).qs
         page = self.paginate_queryset(filtered_qs)
         no_page = False
         if page is None:
@@ -146,7 +145,7 @@ class ProfileView(LoggingMixin, viewsets.ViewSet):
         return Response(self.serializer_class(request.user, context={'request': request}).data)
 
     def put(self, request, *args, **kwargs):
-        serializer = self.serializer_class(instance=request.user, data=request.data)
+        serializer = self.serializer_class(instance=request.user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response(self.serializer_class(user, context={'request': request}).data)
@@ -166,7 +165,7 @@ class ProfileView(LoggingMixin, viewsets.ViewSet):
 class EventView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    filter_class = EventFilter
+    filterset_class = EventFilter
     max_page_size = 0
     ordering = '-start_date'
     ordering_fields = '__all__'

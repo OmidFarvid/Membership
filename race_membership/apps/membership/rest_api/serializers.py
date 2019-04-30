@@ -55,14 +55,14 @@ class RacerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Racer
         fields = '__all__'
-        read_only_fields = ('uid', 'user', 'licenses')
+        read_only_fields = ('uid', 'user', 'first_name', 'last_name', 'licenses')
 
 
 class StaffPromotorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = StaffPromotor
         fields = '__all__'
-        read_only_fields = ('user', 'promotors')
+        read_only_fields = ('user', 'promotors', 'first_name', 'last_name')
 
 
 class UserSessionSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
@@ -75,6 +75,8 @@ class UserSessionSerializer(DynamicFieldsSerializerMixin, serializers.ModelSeria
 
 
 class UserProfileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSerializer):
+    first_name = serializers.CharField(required=True, trim_whitespace=True)
+    last_name = serializers.CharField(required=True, trim_whitespace=True)
     avatar = Base64ImageField(required=False, allow_null=True)
     racer = RacerProfileSerializer(required=False, allow_null=True)
     staff_promotor = StaffPromotorProfileSerializer(required=False, allow_null=True)
@@ -88,16 +90,18 @@ class UserProfileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSeria
     @transaction.atomic()
     def update(self, instance, validated_data):
         racer_data = validated_data.pop('racer', {})
+        try:
+            racer_object = instance.racer
+        except Racer.DoesNotExist:
+            racer_object = None
         if racer_data:
-            try:
-                racer_object = instance.racer
-            except Racer.DoesNotExist:
-                racer_object = None
             if not racer_object:
                 racer_object = Racer(user=instance)
             for k, v in racer_data.items():
                 setattr(racer_object, k, v)
             racer_object.save()
+        elif (not racer_object) and validated_data.get('is_racer'):
+            raise serializers.ValidationError('Cannot enable racer profile before complete required fields!')
 
         staff_promotor_data = validated_data.pop('staff_promotor', {})
         if staff_promotor_data:
@@ -110,6 +114,7 @@ class UserProfileSerializer(DynamicFieldsSerializerMixin, serializers.ModelSeria
             for k, v in staff_promotor_data.items():
                 setattr(staff_promotor_object, k, v)
             staff_promotor_object.save()
+
         return super(UserProfileSerializer, self).update(instance, validated_data)
 
     def to_representation(self, instance):

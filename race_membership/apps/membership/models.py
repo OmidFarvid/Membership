@@ -70,8 +70,10 @@ class User(AbstractUser):
 
 
 class Racer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='racer')
-    uid = models.CharField('Racer ID', max_length=16, unique=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='racer')
+    first_name = models.CharField(max_length=128)
+    last_name = models.CharField(max_length=128)
+    uid = models.CharField('Racer ID', max_length=16, unique=True, editable=False)
     birth_date = models.DateField()
     phone = PhoneNumberField(max_length=50, null=True, blank=True)
     street_address = models.CharField(max_length=256, blank=True, null=True)
@@ -108,14 +110,18 @@ class Racer(models.Model):
     def save(self, *args, **kwargs):
         if not self.uid:
             self.uid = self.make_uid_auto()
+        if not self.first_name:
+            self.first_name = self.user and self.user.first_name
+        if not self.last_name:
+            self.last_name = self.user and self.user.last_name
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.user)
+        return '{} {}'.format(self.first_name, self.last_name)
 
 
 class StaffPromotor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, related_name='staff_promotor')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff_promotor')
     promotors = models.ManyToManyField('Promotor')
 
     def __str__(self):
@@ -162,8 +168,8 @@ class Race(models.Model):
     name = models.CharField(max_length=128)
     start_date = models.DateField()
     start_time = models.TimeField(null=True, blank=True)
-    types = models.ManyToManyField(RaceType)
-    category = models.ForeignKey('RaceCategory', on_delete=models.SET_NULL, null=True, related_name='race')
+    types = models.ManyToManyField(RaceType, blank=True)
+    category = models.ForeignKey('RaceCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name='race')
     event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='race')
 
     def __str__(self):
@@ -178,7 +184,7 @@ class RaceResult(models.Model):
     place = models.PositiveIntegerField()
 
     def __str__(self):
-        return str(self.place)
+        return '{}- {}'.format(self.place, self.racer)
 
 
 class Event(models.Model):
