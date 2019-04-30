@@ -1,0 +1,40 @@
+{% extends "membership/base.html" %}
+{% load staticfiles %}
+{% load bootstrap4 %}
+{% load util_tags %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-3">
+  <span>Event : </span>
+  <span> {{ event.name }}</span>
+</div>
+<div class="col-md-1 text-right">
+  <span>Races : </span>
+</div>
+<div class="col-md-4 text-left">
+<select class="form-control" id="races">
+  {% for race in races %}
+    <option value="{{ race.id }}">{{ race.name }}</option>
+{% endfor %}
+</select>
+</div>
+</div>
+{%  endblock content %}
+{%  block extra_js %}
+<script type="application/javascript">
+
+function getRaceResults(params) {
+          let race_resultUrl = "http://localhost:8000/api/v1/race_result/"+params;
+          return $.get(race_resultUrl);
+      }
+
+  $('#races').on('change',function(e){
+      debugger;
+      var optionSelected = $("option:selected", this);
+      var valueSelected = optionSelected[0].value;
+      getRaceResults(valueSelected)
+  });
+</script>
+{% endblock extra_js %}

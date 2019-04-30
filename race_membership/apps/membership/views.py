@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.core import signing
 from django.core.mail import send_mail
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from django.template.loader import render_to_string
+from rest_framework.response import Response
 from django.urls import reverse_lazy
 from django.views import View
 from django.contrib.auth import login as auth_login
@@ -18,6 +19,10 @@ from apps.membership.models import User, StaffPromotor
 from race_membership.helpers.shortcuts import unsign
 from race_membership.helpers.utils import PermissionRequiredMixin, success_message, send_form_errors, ex_reverse, \
     error_message
+
+from apps.membership.models import Event
+
+from apps.membership.models import Race
 
 
 class IndexView(View):
@@ -237,3 +242,9 @@ class EventListView(TemplateView):
 
 class EventCalendarView(TemplateView):
     template_name = 'membership/event_calendar.html'
+
+
+def return_result_view(request, id):
+    event = get_object_or_404(Event, id=id)
+    races = Race.objects.filter(event=event).all()
+    return render(request, 'membership/race_result.html', {'event': event, 'races': races})

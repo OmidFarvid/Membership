@@ -3,6 +3,8 @@ from django_filters import rest_framework as filters
 
 from apps.membership.models import Event
 
+from apps.membership.models import RaceResult
+
 
 class EventFilter(filters.FilterSet):
     start_date_min = django_filters.DateFilter(field_name='start_date', lookup_expr='gte', required=False)
@@ -13,3 +15,9 @@ class EventFilter(filters.FilterSet):
     class Meta:
         model = Event
         exclude = ('event_flyer', 'image')
+
+
+class RaceResultFilter(filters.FilterSet):
+
+    class Meta:
+        model: RaceResult

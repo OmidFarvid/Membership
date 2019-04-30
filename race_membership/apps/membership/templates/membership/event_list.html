@@ -158,7 +158,9 @@
                   let start_date = moment(this["start_date"]).format("dddd, MMMM Do YYYY");
                   let end_date = moment(this["end_date"]).format("dddd, MMMM Do YYYY");
                   // Add event div
-                  $('#event_table').append("<div class='col-md-12 eventCell event-listing eventRow bottom-bordered mt-3'>");
+                  $('#event_table').append("<div class='col-md-12 eventCell event-listing eventRow bottom-bordered mt-3' onClick='goToRaceResult("
+                  + this["id"]
+                      + ")'>");
                   let eventDiv = $('.eventCell:last');
                   // Add event name
                   eventDiv.append("<div class='row'><div class='col-md-12 eventTitle'>"
@@ -195,6 +197,12 @@
               }
           });
       }
+
+      {#function goToRaceResult(event_id) {#}
+      {#    debugger;#}
+      {#    let race_resultUrl = "{% url 'membership.race_result' %} "+ event_id;#}
+      {#    return $.get(race_resultUrl, event_id);#}
+      {#}#}
 
       $(document).ready(
           (function () {
@@ -261,7 +269,6 @@
                           events = data.results;
                           initPagination(events);
                       });
-
               });
           }())
       );

@@ -14,8 +14,12 @@ from reversion.models import Version
 from apps.membership.models import Event
 from apps.membership.rest_api.filters import EventFilter
 from apps.membership.rest_api.serializers import SessionSerializer, UserSessionSerializer, UserProfileSerializer, \
-    SetPasswordSerializer, EventSerializer
+    SetPasswordSerializer, EventSerializer,RaceResultSerializer
 from race_membership.helpers.utils import ExtendedOrderingFilterBackend, CustomLoggingMixin as LoggingMixin
+
+from apps.membership.models import RaceResult
+
+from apps.membership.rest_api.filters import RaceResultFilter
 
 
 class HistoricalViewMixin(object):
@@ -175,3 +179,16 @@ class EventView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):  # make event-list and event-retrieve as public
             return
         return super().check_permissions(request)
+
+
+class RaceResultView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
+    queryset = RaceResult.objects.all()
+    serializer_class = RaceResultSerializer
+    filterset_class = RaceResultFilter
+    ordering = '-place'
+    ordering_fields = '__all__'
+
+    def get(self,request):
+        if request.data.get("id", None):
+            race_results = RaceResult.objects.filter(race_id=request.data.get("id"))
+        return race_results

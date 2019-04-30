@@ -126,12 +126,11 @@ var Pagination = function (el, options) {
 				 '<li class="page-item" data-page="' + PREVIOUS_PAGE_NUMBER + '"><a class="page-link"><span aria-hidden="true">' + previousPageLabel + '</span></a></li>';
 
 		$.each(pageNumbers, function (i, p) {
-			result += '<li class="page-item" data-page="' + p + '" ' + (p === currentPage ? 'class="active"' : '') + '><a class="page-link">' + p + '</a></li>';
 			if (p === currentPage) {
-				result += '<li class="page-item active" data-page="' + p + '" ' + '><a class="page-link" href="javascipt:void(0)">' + p + '</a></li>';
+				result += '<li class="page-item active" data-page="' + p + '" ' + '><a class="page-link">' + p + '</a></li>';
 			}
 			else{
-				result += '<li class="page-item" data-page="' + p + '" ' + '><a class="page-link" href="javascipt:void(0)">' + p + '</a></li>';
+				result += '<li class="page-item" data-page="' + p + '" ' + '><a class="page-link">' + p + '</a></li>';
 			}
 		});
 
