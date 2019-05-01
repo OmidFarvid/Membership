@@ -8,7 +8,7 @@ rest_router.trailing_slash = "/?"  # added to support both / and slashless
 rest_router.register(r'session', SessionView, basename='session')
 rest_router.register(r'me', ProfileView, basename='profile')
 rest_router.register(r'event', EventView)
-rest_router.register(r'race_result/(?P<id>\d+)/$', RaceResultView)
+rest_router.register(r'race-result', RaceResultView)
 
 app_name = 'membership'
 urlpatterns = [

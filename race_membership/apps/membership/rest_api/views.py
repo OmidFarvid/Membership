@@ -11,15 +11,11 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from reversion.models import Version
 
-from apps.membership.models import Event
+from apps.membership.models import Event, RaceResult
 from apps.membership.rest_api.filters import EventFilter
 from apps.membership.rest_api.serializers import SessionSerializer, UserSessionSerializer, UserProfileSerializer, \
-    SetPasswordSerializer, EventSerializer,RaceResultSerializer
+    SetPasswordSerializer, EventSerializer, RaceResultSerializer
 from race_membership.helpers.utils import ExtendedOrderingFilterBackend, CustomLoggingMixin as LoggingMixin
-
-from apps.membership.models import RaceResult
-
-from apps.membership.rest_api.filters import RaceResultFilter
 
 
 class HistoricalViewMixin(object):
@@ -181,14 +177,13 @@ class EventView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
         return super().check_permissions(request)
 
 
-class RaceResultView(LoggingMixin, HistoricalViewMixin, viewsets.ModelViewSet):
+class RaceResultView(LoggingMixin, viewsets.ModelViewSet):
     queryset = RaceResult.objects.all()
     serializer_class = RaceResultSerializer
-    filterset_class = RaceResultFilter
-    ordering = '-place'
-    ordering_fields = '__all__'
+    max_page_size = 0
+    search_fields = ['race__id']
 
-    def get(self,request):
-        if request.data.get("id", None):
-            race_results = RaceResult.objects.filter(race_id=request.data.get("id"))
-        return race_results
+    def check_permissions(self, request):
+        if self.action in ('list', 'retrieve'):  # make event-list and event-retrieve as public
+            return
+        return super().check_permissions(request)
