@@ -4,6 +4,10 @@
 {% load util_tags %}
 {% load static %}
 
+{% block extra_css %}
+  <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block breadcrumb_items %}
   <li class="breadcrumb-item"><a href="{% url 'membership:event-list' %}">Events</a></li>
   <li class="breadcrumb-item active" aria-current="page">Race Result</li>
@@ -28,8 +32,33 @@
       </div>
     </div>
   </div>
+  <div class="row mt-3">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Event List</h4>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table id="event_table" class="table">
+              <thead class="thead-dark">
+              <tr>
+                <th>Place</th>
+                <th>Name</th>
+                <th>Duration</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}
 {% block extra_js %}
+  <script src="{% static 'dj/js/datatables.js' %}"></script>
   <script type="application/javascript">
 
       function getRaceResults(raceId) {
@@ -41,6 +70,18 @@
           const optionSelected = $("option:selected", this);
           const valueSelected = optionSelected[0].value;
           getRaceResults(valueSelected)
-      });
+              .done(function (data) {
+                  $.fn.dataTable.ext.errMode = 'none';
+                  $('#event_table').DataTable({
+                      data: data.results,
+                      columns:[
+                          {data:'place'},
+                          {data:'racer.fullname'},
+                          {data:'duration'},
+                          ]
+                  });
+              });
+      })
+
   </script>
 {% endblock extra_js %}
