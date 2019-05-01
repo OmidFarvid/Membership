@@ -5,36 +5,72 @@
 {% load static %}
 
 {% block content %}
-<div class="row">
-<div class="col-md-3">
-  <span>Event : </span>
-  <span> {{ event.name }}</span>
-</div>
-<div class="col-md-1 text-right">
-  <span>Races : </span>
-</div>
-<div class="col-md-4 text-left">
-<select class="form-control" id="races">
-  {% for race in races %}
-    <option value="{{ race.id }}">{{ race.name }}</option>
-{% endfor %}
-</select>
-</div>
-</div>
-{%  endblock content %}
-{%  block extra_js %}
-<script type="application/javascript">
+  <div class="row mt-3">
+    <div class="col-md-3">
+      <span>Event : </span>
+      <span> {{ event.name }}</span>
+    </div>
+    <div class="col-md-1 text-right">
+      <span>Races111 : </span>
+    </div>
+    <div class="col-md-4 text-left">
+      <select class="form-control" id="races">
+        {% for race in races %}
+          <option value="{{ race.id }}">{{ race.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Event List</h4>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table id="event_table" class="table">
+              <thead class="thead-dark">
+              <tr>
+                <th>Event Name</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+{% block extra_js %}
+  <script type="application/javascript">
 
-function getRaceResults(params) {
-          let race_resultUrl = "http://localhost:8000/api/v1/race_result/"+params;
+      function getRaceResults(params) {
+          let race_resultUrl = "http://localhost:8000/api/v1/race_result/" + params;
           return $.get(race_resultUrl);
       }
 
-  $('#races').on('change',function(e){
-      debugger;
-      var optionSelected = $("option:selected", this);
-      var valueSelected = optionSelected[0].value;
-      getRaceResults(valueSelected)
-  });
-</script>
+      $('#races').on('change', function (e) {
+          debugger;
+          var optionSelected = $("option:selected", this);
+          var valueSelected = optionSelected[0].value;
+          let race_results = getRaceResults(valueSelected)
+          $.fn.dataTable.ext.errMode = 'none';
+                $('#event_table').DataTable({
+                    data: data.results,
+                    createdRow: function (row, race_results, dataIndex) {
+                        $(row).html(`
+                            <div class="event-listing">
+                                <span class="event-heading">${data.name}</span>
+                                <span class="event-date">
+                                    ${moment(data.start_date).format("dddd, MMMM Do YYYY")} -
+                                    ${moment(data.end_date).format("dddd, MMMM Do YYYY")}
+                                </span>
+                            </div>`)
+                    }
+                });
+      });
+  </script>
 {% endblock extra_js %}
