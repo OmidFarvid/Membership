@@ -59,13 +59,13 @@
                       events.push({"title": (event.name), "start": (event.start_date), "end": (event.end_date)});
                   });
                   let calendar = new FullCalendar.Calendar(calendarEl, {
-                      plugins:  [ 'dayGrid', 'timeGrid', 'list'],
+                      plugins:  ['list'],
                       timeZone: 'UTC',
-                      defaultView: 'dayGridMonth',
+                      defaultView: 'listMonth',
                       header: {
-                          left: 'prev,next today',
+                          left:'prev,next',
                           center: 'title',
-                          right: 'dayGridMonth,timeGridWeek,listWeek'
+                          right:undefined
                       },
                       titleRangeSeparator: ' - ',
                       eventLimit: true,

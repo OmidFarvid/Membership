@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block extra_css %}
-  <link href="{% static 'dj/css/datatables.min.css' %}" rel="stylesheet">
+  <link href="{% static 'dj/css/datatables.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block breadcrumb_items %}
@@ -67,6 +67,7 @@
                       $('#race_result_table').DataTable().destroy();
                   }
                   $('#race_result_table').DataTable({
+                      "pagingType": "full_numbers",
                       data: data.results,
                       columns: [
                           {data: 'place'},
