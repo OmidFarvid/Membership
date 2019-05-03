@@ -9,9 +9,12 @@
   <title>{% block title %}We Race Here{% endblock %}</title>
 
   {% block main_css %}
-    <link href="{% static 'dj/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'dj/css/bootstrap.css' %}" rel="stylesheet">
     <link href="{% static 'dj/css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'dj/css/tempusdominus-bootstrap-4.min.css' %}" rel="stylesheet">
     <link href="{% static 'dj/css/base.css' %}" rel="stylesheet">
+
   {% endblock %}
   {% block extra_css %}
   {% endblock %}
@@ -41,7 +44,7 @@
   {% endblock header %}
 
   {% block main-container %}
-    <main role="main" class="flex-shrink-0">
+    <main role="main" class="flex-shrink-0 main-content bg-light">
       <div class="container">
         {% block breadcrumb %}
         {% endblock breadcrumb %}
@@ -68,7 +71,7 @@
 
 {% block main_js %}
   <script src="{% static 'dj/js/jquery.js' %}"></script>
-  <script src="{% static 'dj/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'dj/js/bootstrap.js' %}"></script>
   <script type="text/javascript">
     $(document).ready(function () {
       $('.dropdown-menu li.disabled a').click(function (e) {
